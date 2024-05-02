@@ -1,19 +1,22 @@
-// server/controllers/gardenController.js
+// server/models/Garden.js
 
-const Garden = require('../models/Garden');
+const mongoose = require('mongoose');
 
-// Controller functions
-const createGarden = async (req, res) => {
-  try {
-    const { name, size, location, sunlight, user } = req.body;
-    const newGarden = new Garden({ name, size, location, sunlight, user });
-    await newGarden.save();
-    res.status(201).json(newGarden);
-  } catch (error) {
-    res.status(500).json({ message: 'Failed to create garden', error: error.message });
-  }
-};
+const gardenSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  size: { type: String, enum: ['small', 'medium', 'large'], required: true },
+  location: { type: String, required: true },
+  sunlight: { type: String, required: true },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  plants: [
+    {
+      vegetable: { type: mongoose.Schema.Types.ObjectId, ref: 'Vegetable' },
+      quantity: { type: Number, default: 1 },
+      sowDate: { type: Date },
+      transplantDate: { type: Date },
+      harvestDate: { type: Date }
+    }
+  ]
+});
 
-module.exports = {
-  createGarden
-};
+module.exports = mongoose.model('Garden', gardenSchema);
